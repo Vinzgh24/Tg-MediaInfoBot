@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 LANGUAGE=en_US:en TZ=Asia/Kolkata
 
@@ -25,7 +25,7 @@ RUN wget -q -O /tmp/libzen0v5.deb http://th.archive.ubuntu.com/ubuntu/pool/unive
   && dpkg -i /tmp/libzen0v5.deb \
   && rm /tmp/libzen0v5.deb
 
-RUN wget -q -O /tmp/libmediainfo0v5.deb http://ftp.de.debian.org/debian/pool/main/libm/libmediainfo/libmediainfo-dev_24.04+dfsg-1_amd64.deb \
+RUN wget -q -O /tmp/libmediainfo0v5.deb http://ftp.de.debian.org/debian/pool/main/libm/libmediainfo/libmediainfo0v5_24.04+dfsg-1_amd64.deb \
   && dpkg -i /tmp/libmediainfo0v5.deb \
   && rm /tmp/libmediainfo0v5.deb
 
