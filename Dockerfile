@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 LANGUAGE=en_US:en TZ=Asia/Kolkata
 
@@ -21,7 +21,7 @@ RUN apt-get update -qq && apt-get upgrade -y && apt-get install -y \
     megatools \
  && rm -rf /var/lib/apt/lists/*
 
-RUN wget -q -O /tmp/libzen0v5.deb http://th.archive.ubuntu.com/ubuntu/pool/universe/libz/libzen/libzen0v5_0.4.40-1_amd64.deb \
+RUN wget -q -O /tmp/libzen0v5.deb http://th.archive.ubuntu.com/ubuntu/pool/universe/libz/libzen/libzen0v5_0.4.41-2_amd64.deb \
   && dpkg -i /tmp/libzen0v5.deb \
   && rm /tmp/libzen0v5.deb
 
