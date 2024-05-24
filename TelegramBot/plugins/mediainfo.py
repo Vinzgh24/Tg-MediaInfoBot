@@ -199,8 +199,8 @@ async def ddl_mediainfo(message, url, isRaw):
             "Something went wrong while generating Mediainfo from the given url.")
 
 
-async def telegram_mediainfo(client, message, url, isRaw, download_path, filename, reply_msg):
-    """
+async def telegram_mediainfo(client, message, isRaw):
+    """6bb9a95c9d37
     Generates Mediainfo from a Telegram File.
     """
 
