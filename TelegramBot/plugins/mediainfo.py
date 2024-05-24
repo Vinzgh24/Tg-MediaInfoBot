@@ -276,26 +276,22 @@ async def telegram_mediainfo(client, message, isRaw):
         if isRaw:
             with open(f"{download_path}.txt", "r+") as file:
                 content = file.read()
-
-    url = mediainfo_paste(text=content, title=filename)
-    buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("View Media Info", url=url)]
-    ])
-    await message.reply_text(f"Here is your media info link:", reply_markup=buttons)
-      
+            url = mediainfo_paste(text=content, title=title)
+            buttons = InlineKeyboardMarkup([
+                [InlineKeyboardButton("View Mediainfo", url=url)]
+            ])
+            await message.reply_text("Here is your media info link:", reply_markup=buttons)
         else:
             await client.send_document(
                 chat_id=message.chat.id,
                 document=f"{download_path}.txt",
-                caption=f"**File Name :** `{filename}`"
+                caption=f"**File Name :** `{title}`"
             )
             os.remove(f"{download_path}.txt")
             os.remove(f"{download_path}")
-            return
-        
+
     except Exception as e:
         await message.reply_text(f"An error occurred: {str(e)}")
-        # Ideally, you should handle specific exceptions and provide user-friendly responses
 
 
 @Client.on_message(filters.command(["mediainfo", "m"]) & check_auth)
