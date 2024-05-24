@@ -245,15 +245,16 @@ def html_builder(title: str, text: str) -> str:
     return css + html_msg
 
 
-async def mediainfo_paste(text: str) -> str:
+async def mediainfo_paste(text: str, title: str) -> str:
     """
     paste the text in katb.in website.
     """
 
     katbin_url = "https://katb.in"
+    html_content = html_builder(title, text)
     client = AsyncClient()
     response = await client.get(katbin_url)
-    soup = BeautifulSoup(response.content, "html.parser")
+    soup = BeautifulSoup(response.content, "html_parser")
     csrf_token = soup.find("input", {"name": "_csrf_token"}).get("value")
     try:
         paste_post = await client.post(
