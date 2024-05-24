@@ -29,9 +29,9 @@ RUN wget -q -O /tmp/libzen0v5.deb http://th.archive.ubuntu.com/ubuntu/pool/unive
     dpkg -i /tmp/libzen0v5.deb && \
     rm /tmp/libzen0v5.deb
 
-RUN wget -q -O /tmp/libmediainfo0v5.deb http://ftp.de.debian.org/debian/pool/main/libm/libmediainfo/libmediainfo0v5_23.04+dfsg-1_amd64.deb || apt-get install -yf \
-  && dpkg -i /tmp/libmediainfo0v5.deb \
-  && rm /tmp/libmediainfo0v5.deb
+RUN wget -q -O /tmp/libmediainfo0v5.deb http://ftp.de.debian.org/debian/pool/main/libm/libmediainfo/libmediainfo0v5_23.04+dfsg-1_amd64.deb \
+    && apt-get install -yf /tmp/libmediainfo0v5.deb \
+    && rm /tmp/libmediainfo0v5.deb
 
 RUN wget -q -O /tmp/libtinyxml2-6a.deb http://kr.archive.ubuntu.com/ubuntu/pool/universe/t/tinyxml2/libtinyxml2-6a_7.0.0+dfsg-1build1_amd64.deb \
   && dpkg -i /tmp/libtinyxml2-6a.deb \
