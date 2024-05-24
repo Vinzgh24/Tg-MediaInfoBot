@@ -21,8 +21,8 @@ RUN apt-get update -qq && apt-get upgrade -y && apt-get install -y \
     megatools \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -O http://mirrors.kernel.org/ubuntu/pool/universe/t/tinyxml2/libtinyxml2-9_9.0.0+dfsg-3_amd64.deb \
-    && apt-get install -y ./libtinyxml2-9_9.0.0+dfsg-3_amd64.deb
+RUN wget -q -O /tmp/libtinyxml2-9.deb http://mirrors.kernel.org/ubuntu/pool/universe/t/tinyxml2/libtinyxml2-9_9.0.0+dfsg-3_amd64.deb \
+    dpkg -i /tmp/libtinyxml2-9.deb
 
 RUN wget -q -O /tmp/libzen0v5.deb http://th.archive.ubuntu.com/ubuntu/pool/universe/libz/libzen/libzen0v5_0.4.41-2_amd64.deb && \
     apt-get remove -y libzen0t64 && \
