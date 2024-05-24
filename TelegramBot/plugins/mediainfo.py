@@ -76,6 +76,7 @@ async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_m
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
 
+    try:
     if isRaw:
             await message.reply_document(
                 f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
