@@ -24,9 +24,10 @@ RUN apt-get update -qq && apt-get upgrade -y && apt-get install -y \
 RUN curl -O http://mirrors.kernel.org/ubuntu/pool/universe/t/tinyxml2/libtinyxml2-9_9.0.0+dfsg-3_amd64.deb
 RUN dpkg -i libtinyxml2-9_9.0.0+dfsg-3_amd64.deb || apt-get install -yf
 
-RUN wget -q -O /tmp/libzen0v5.deb http://th.archive.ubuntu.com/ubuntu/pool/universe/libz/libzen/libzen0v5_0.4.41-2_amd64.deb || apt-get install -yf \
-  && dpkg -i /tmp/libzen0v5.deb \
-  && rm /tmp/libzen0v5.deb
+RUN wget -q -O /tmp/libzen0v5.deb http://th.archive.ubuntu.com/ubuntu/pool/universe/libz/libzen/libzen0v5_0.4.41-2_amd64.deb && \
+    apt-get remove -y libzen0t64 && \
+    dpkg -i /tmp/libzen0v5.deb && \
+    rm /tmp/libzen0v5.deb
 
 RUN wget -q -O /tmp/libmediainfo0v5.deb http://ftp.de.debian.org/debian/pool/main/libm/libmediainfo/libmediainfo0v5_23.04+dfsg-1_amd64.deb || apt-get install -yf \
   && dpkg -i /tmp/libmediainfo0v5.deb \
