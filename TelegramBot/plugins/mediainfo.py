@@ -23,7 +23,7 @@ from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
 async def generate_keyboard(mediainfo_url):
     return InlineKeyboardMarkup([
-         InlineKeyboardButton("🔗 Mediainfo", url=output)]
+         InlineKeyboardButton("🔗 Mediainfo", url=mediainfo_url)]
     ])
     
 async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_msg):
