@@ -1,5 +1,6 @@
 import re
 import os
+import time
 import json
 import httpx
 import asyncio
@@ -134,6 +135,7 @@ async def ddl_mediainfo(message, url, isRaw):
         mediainfo_json = await async_subprocess(
             f"mediainfo {download_path} --Output=JSON")
         mediainfo_json = json.loads(mediainfo_json)
+        readable_size = get_readable_bytes(size)
 
         filesize = requests.head(url).headers.get("content-length")
         lines = mediainfo.splitlines()
@@ -227,6 +229,7 @@ async def telegram_mediainfo(client, message, isRaw):
 
         filename = str(media.file_name)
         size = media.file_size
+        time = media.file_time
 
         rand_str = randstr()
         download_path = f"download/{rand_str}_{filename}"
@@ -245,6 +248,8 @@ async def telegram_mediainfo(client, message, isRaw):
         mediainfo_json = json.loads(mediainfo_json)
 
         readable_size = get_readable_bytes(size)
+        readable_time = get_readable_time(time)
+        
         lines = mediainfo.splitlines()
         for i in range(len(lines)):
             if "Complete name" in lines[i]:
@@ -284,7 +289,7 @@ async def telegram_mediainfo(client, message, isRaw):
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
         
-        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size}"
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size} \n**Time :** {readable_time}"
         
         await reply_msg.edit(
             text=msg,
