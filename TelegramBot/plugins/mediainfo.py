@@ -289,7 +289,7 @@ async def telegram_mediainfo(client, message, isRaw):
     ])
         process_time = start_time
         
-        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size} \n**Time :** {readable_time(process_time)}"
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size} \n**Time :** {process_time}"
         
         await reply_msg.edit(
             text=msg,
