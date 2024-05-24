@@ -170,10 +170,18 @@ async def ddl_mediainfo(message, url, isRaw):
             content = file.read()
 
         output = mediainfo_paste(text=content, title=filename)
+        button = InlineKeyboardMarkup([
+        [InlineKeyboardButton("View Mediainfo", url=output)]
+    ])
+        
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n\n**Size :** {size}"
+        
         await reply_msg.edit(
-            f"**File Name :** `{unquote(filename)}`\n\n**Mediainfo :** {output}",
-            disable_web_page_preview=False)
-
+            text=msg,
+            reply_markup=button,
+            disable_web_page_preview=False
+        )
+        
         os.remove(f"{download_path}.txt")
         os.remove(f"{download_path}")
 
@@ -276,7 +284,7 @@ async def telegram_mediainfo(client, message, isRaw):
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
         
-        msg = f"<blockquote><code>{filename}</code></blockquote>"
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n\n**Size :** {size}"
         
         await reply_msg.edit(
             text=msg,
