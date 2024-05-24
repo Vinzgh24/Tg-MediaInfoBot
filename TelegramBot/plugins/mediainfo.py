@@ -22,7 +22,7 @@ from TelegramBot.helpers.mediainfo_paste import mediainfo_paste
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
 
-async def generate_keyboard(message, url):
+async def generate_keyboard(message, isRaw, url):
     return InlineKeyboardMarkup([
         InlineKeyboardButton("🔗 Mediainfo", url=url)
     ])
@@ -199,7 +199,7 @@ async def ddl_mediainfo(message, url, isRaw):
             "Something went wrong while generating Mediainfo from the given url.")
 
 
-async def telegram_mediainfo(client, message, url, isRaw, download_path, filename, reply_msg):
+async def telegram_mediainfo(client, message, isRaw):
     """
     Generates Mediainfo from a Telegram File.
     """
