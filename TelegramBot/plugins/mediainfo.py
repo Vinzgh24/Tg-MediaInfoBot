@@ -76,28 +76,29 @@ async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_m
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
 
-    try:
-    if isRaw:
-            await message.reply_document(
-                f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
+        if isRaw:
+            await message.reply_document(f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
             os.remove(f"{download_path}.txt")
             os.remove(f"{download_path}")
-            return await reply_msg.delete()
+            
+            await reply_msg.edit_text("Information sent and file cleaned up.")
+        else:
+            with open(f"{download_path}.txt", "r+") as file:
+                content = file.read()
 
-        with open(f"{download_path}.txt", "r+") as file:
-            content = file.read()
+            output = mediainfo_paste(text=content, title=filename)
+            markup = types.InlineKeyboardMarkup()
+            button = types.InlineKeyboardButton("View More", url=output)
+            markup.add(button)
 
-        output = mediainfo_paste(text=content, title=filename)
-        markup = types.InlineKeyboardMarkup()
-        button = types.InlineKeyboardButton("View More", url=output)
-        markup.add(button)
-
-        await reply_msg.edit(
-            f"**File Name :** `{filename}`\n\n**Mediainfo :** {output}",
-            disable_web_page_preview=False,
-            reply_markup=markup
-        )
-
+            await reply_msg.edit(
+                f"**File Name :** `{filename}`\n\n**Mediainfo :** {output}",
+                disable_web_page_preview=False,
+                reply_markup=markup
+            )
+    except Exception as e:
+        await reply_msg.edit_text(f"Failed to generate Mediainfo due to: {str(e)}")
+       
         # Cleaning up files
         os.remove(f"{download_path}.txt")
         os.remove(f"{download_path}")
