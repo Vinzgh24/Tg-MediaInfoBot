@@ -21,8 +21,8 @@ from TelegramBot.helpers.filters import check_auth
 from TelegramBot.helpers.mediainfo_paste import mediainfo_paste
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
-    
-async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_msg):
+
+async def gdrive_mediainfo(message, url, isRaw):
     """
     Generates Mediainfo from a Google Drive file.
     """
@@ -77,36 +77,28 @@ async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_m
             f.write("\n".join(lines))
 
         if isRaw:
-            await message.reply_document(f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
+            await message.reply_document(
+                f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
             os.remove(f"{download_path}.txt")
             os.remove(f"{download_path}")
-            
-            await reply_msg.edit_text("Information sent and file cleaned up.")
-        else:
-            with open(f"{download_path}.txt", "r+") as file:
-                content = file.read()
+            return await reply_msg.delete()
 
-            output = mediainfo_paste(text=content, title=filename)
-            markup = types.InlineKeyboardMarkup()
-            button = types.InlineKeyboardButton("View More", url=output)
-            markup.add(button)
+        with open(f"{download_path}.txt", "r+") as file:
+            content = file.read()
 
-            await reply_msg.edit(
-                f"**File Name :** `{filename}`\n\n**Mediainfo :** {output}",
-                disable_web_page_preview=False,
-                reply_markup=markup
-            )
-    except Exception as e:
-        await reply_msg.edit_text(f"Failed to generate Mediainfo due to: {str(e)}")
-       
-        # Cleaning up files
+        output = mediainfo_paste(text=content, title=filename)
+        await reply_msg.edit(
+            f"**File Name :** `{filename}`\n\n**Mediainfo :** {output}",
+            disable_web_page_preview=False)
+
         os.remove(f"{download_path}.txt")
         os.remove(f"{download_path}")
 
     except Exception as error:
-        LOGGER(__name__).error(error)
+        LOGGER(__name__).error(error)        
         return await reply_msg.edit(
             "Something went wrong while processing Gdrive link.\n\n (Make sure that the gdrive link is not rate limited, is public link and not a folder)")
+
 
 async def ddl_mediainfo(message, url, isRaw):
     """
@@ -195,7 +187,7 @@ async def ddl_mediainfo(message, url, isRaw):
 
 
 async def telegram_mediainfo(client, message, isRaw):
-    """6bb9a95c9d37
+    """
     Generates Mediainfo from a Telegram File.
     """
 
@@ -267,28 +259,35 @@ async def telegram_mediainfo(client, message, isRaw):
         remove_N(lines)
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
-            if isRaw:
-                await message.reply_document(
-                    f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
-                os.remove(f"{download_path}.txt")
-                os.remove(f"{download_path}")
-                return await reply_msg.delete()
-                with open(f"{download_path}.txt", "r+") as file:
-                    content = file.read()
-                    
-                    output = mediainfo_paste(text=content, title=filename)
-                    button = InlineKeyboardMarkup([
-                        [InlineKeyboardButton("View Mediainfo", url=output)]
-                    ])
-                    await message.edit(
-                        f"**File Name :** `{filename}`\n\n**Mediainfo :** [here]({output})",
-                        reply_markup=button,  # Adding the inline button
-                        disable_web_page_preview=False
-                    )
-                    os.remove(f"{download_path}.txt")
-                    os.remove(download_path)
-    except Exception as e:
-        await message.reply_text(f"An error occurred: {str(e)}")
+
+        if isRaw:
+            await message.reply_document(
+                f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
+            os.remove(f"{download_path}.txt")
+            os.remove(f"{download_path}")
+            return await reply_msg.delete()
+
+        with open(f"{download_path}.txt", "r+") as file:
+            content = file.read()
+
+        output = mediainfo_paste(text=content, title=filename)
+        button = InlineKeyboardMarkup([
+        [InlineKeyboardButton("View Mediainfo", url=output)]
+    ])
+        
+        await reply_msg.edit(
+            f"**File Name :** `{filename}`\n\n**Mediainfo :** {output}", 
+             reply_markup=button, 
+             disable_web_page_preview=False)
+
+        os.remove(f"{download_path}.txt")
+        os.remove(download_path)
+
+    except Exception as error:
+        LOGGER(__name__).error(error)
+        return await reply_msg.edit(
+            "Something went wrong while generating Mediainfo from replied Telegram file.")
+
 
 @Client.on_message(filters.command(["mediainfo", "m"]) & check_auth)
 async def mediainfo(client, message: Message):
