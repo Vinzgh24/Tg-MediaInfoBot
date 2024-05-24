@@ -1,3 +1,6 @@
+from bs4 import BeautifulSoup
+from telegraph.aio import Telegraph
+
 css = """
 <style>
 @font-face {
@@ -242,11 +245,24 @@ def html_builder(title: str, text: str) -> str:
     return css + html_msg
 
 
-def mediainfo_paste(text: str, title: str) -> str:
-    html_content = html_builder(title, text)
-    URL = "https://mediainfo-1-y5870653.deta.app/api"
-    response = requests.post(URL, json={"content": html_content})
-    if response.status_code == 200:
-        return f"https://mediainfo-1-y5870653.deta.app/{json.loads(response.content)['key']}"
-    else:
-        return "https://mediainfo.deta.dev/error"
+async def mediainfo_paste(text: str) -> str:
+    """
+    paste the text in katb.in website.
+    """
+
+    katbin_url = "https://katb.in"
+    client = AsyncClient()
+    response = await client.get(katbin_url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    csrf_token = soup.find("input", {"name": "_csrf_token"}).get("value")
+    try:
+        paste_post = await client.post(
+            katbin_url,
+            data={"_csrf_token": csrf_token, "paste[content]": text},
+            follow_redirects=False,
+        )
+        output_url = f"{katbin_url}{paste_post.headers['location']}"
+        await client.aclose()
+        return output_url
+    except:
+        return "something went wrong while pasting text in katb.in."
