@@ -21,24 +21,11 @@ RUN apt-get update -qq && apt-get upgrade -y && apt-get install -y \
     sox \
     locales \
     megatools \
+    python3-venv \
  && rm -rf /var/lib/apt/lists/*
 
-RUN wget -q -O /tmp/libzen0v5.deb http://th.archive.ubuntu.com/ubuntu/pool/universe/libz/libzen/libzen0v5_0.4.41-2_amd64.deb && \
-    apt-get remove -y libzen0t64 && \
-    dpkg -i /tmp/libzen0v5.deb && \
-    rm /tmp/libzen0v5.deb
-
-RUN wget -q -O /tmp/libtinyxml2-6a.deb http://kr.archive.ubuntu.com/ubuntu/pool/universe/t/tinyxml2/libtinyxml2-6a_7.0.0+dfsg-1build1_amd64.deb \
-  && dpkg -i /tmp/libtinyxml2-6a.deb \
-  && rm /tmp/libtinyxml2-6a.deb
-
-RUN wget -q -O /tmp/libmediainfo-dev.deb http://ftp.de.debian.org/debian/pool/main/libm/libmediainfo/libmediainfo-dev_24.04+dfsg-1_amd64.deb \
-  && dpkg -i /tmp/libmediainfo-dev.deb \
-  && rm /tmp/libmediainfo-dev.deb
-
-RUN wget -q -O /tmp/mediainfo.deb https://mediaarea.net/download/binary/mediainfo/22.12/mediainfo_22.12-1_amd64.xUbuntu_20.04.deb \
-  && dpkg -i /tmp/mediainfo.deb \
-  && rm /tmp/mediainfo.deb
+RUN python3 -m venv /usr/src/app/venv
+ENV PATH="/usr/src/app/venv/bin:$PATH"
 
 RUN locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 
@@ -47,6 +34,8 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
+
+COPY config.env .
 
 RUN chmod +x start
 
