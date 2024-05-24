@@ -22,7 +22,7 @@ from TelegramBot.helpers.mediainfo_paste import mediainfo_paste
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
 
-async def generate_keyboard(message, url):
+async def generate_keyboard(message, url, isRaw):
     return InlineKeyboardMarkup([
         InlineKeyboardButton("🔗 Mediainfo", url=url)
     ])
