@@ -21,11 +21,6 @@ from TelegramBot.helpers.filters import check_auth
 from TelegramBot.helpers.mediainfo_paste import mediainfo_paste
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
-
-async def generate_keyboard(output):
-    return InlineKeyboardMarkup([
-        InlineKeyboardButton("🔗 Mediainfo", url=output)
-    ])
     
 async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_msg):
     """
