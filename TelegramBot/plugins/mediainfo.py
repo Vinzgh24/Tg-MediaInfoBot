@@ -81,10 +81,10 @@ async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_m
             await message.reply_document(
                 f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
             os.remove(f"{download_path}.txt")
-            os.remove(download_path)  # Assuming download_path is a directory
+            os.remove(download_path)  # Make sure this is the correct approach if it's a directory
             return await reply_msg.delete()
 
-        # Reading content from file when not isRaw
+        # Execute if isRaw is False
         with open(f"{download_path}.txt", "r+") as file:
             content = file.read()
 
@@ -101,10 +101,11 @@ async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_m
         os.remove(download_path)
 
     except Exception as error:
-        LOGGER(__name__).error(str(error))  # Make sure to convert error to string if LOGGER does not handle Exceptions directly
+        # Ensure error logging facility is appropriately set up
+        LOGGER(__name__).error(str(error))
         await reply_msg.edit(
             "Something went wrong while processing the GDrive link.\n\n" +
-            "Make sure that the GDrive link is not rate limited, is a public link, and not pointing to a folder."
+            "Ensure that the GDrive link is not rate-limited, is a public link, and not pointing to a folder."
         )
 
 async def ddl_mediainfo(message, url, isRaw):
