@@ -76,37 +76,35 @@ async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_m
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
 
-    try:
-        if isRaw:
+    if isRaw:
             await message.reply_document(
                 f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
             os.remove(f"{download_path}.txt")
-            os.remove(download_path)  # Make sure this is the correct approach if it's a directory
+            os.remove(f"{download_path}")
             return await reply_msg.delete()
 
-        # Execute if isRaw is False
         with open(f"{download_path}.txt", "r+") as file:
             content = file.read()
 
         output = mediainfo_paste(text=content, title=filename)
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("View Mediainfo", url=output)]
-        ])
+        markup = types.InlineKeyboardMarkup()
+        button = types.InlineKeyboardButton("View More", url=output)
+        markup.add(button)
+
         await reply_msg.edit(
-            text=f"**File Name :** `{unquote(filename)}`\n\n**Mediainfo :**",
-            reply_markup=keyboard,
-            disable_web_page_preview=True
+            f"**File Name :** `{filename}`\n\n**Mediainfo :** {output}",
+            disable_web_page_preview=False,
+            reply_markup=markup
         )
+
+        # Cleaning up files
         os.remove(f"{download_path}.txt")
-        os.remove(download_path)
+        os.remove(f"{download_path}")
 
     except Exception as error:
-        # Ensure error logging facility is appropriately set up
-        LOGGER(__name__).error(str(error))
-        await reply_msg.edit(
-            "Something went wrong while processing the GDrive link.\n\n" +
-            "Ensure that the GDrive link is not rate-limited, is a public link, and not pointing to a folder."
-        )
+        LOGGER(__name__).error(error)
+        return await reply_msg.edit(
+            "Something went wrong while processing Gdrive link.\n\n (Make sure that the gdrive link is not rate limited, is public link and not a folder)")
 
 async def ddl_mediainfo(message, url, isRaw):
     """
