@@ -229,8 +229,7 @@ async def telegram_mediainfo(client, message, isRaw):
 
         filename = str(media.file_name)
         size = media.file_size
-        time = media.file_time
-
+        
         rand_str = randstr()
         download_path = f"download/{rand_str}_{filename}"
 
