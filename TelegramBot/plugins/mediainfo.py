@@ -174,7 +174,7 @@ async def ddl_mediainfo(message, url, isRaw):
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
         
-        msg = f"<blockquote><code>{filename}</code></blockquote> \n\n**Size :** {size}"
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size}"
         
         await reply_msg.edit(
             text=msg,
@@ -284,7 +284,7 @@ async def telegram_mediainfo(client, message, isRaw):
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
         
-        msg = f"<blockquote><code>{filename}</code></blockquote> \n\n**Size :** {size}"
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size}"
         
         await reply_msg.edit(
             text=msg,
