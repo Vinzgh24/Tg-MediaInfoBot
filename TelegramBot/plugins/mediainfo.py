@@ -51,6 +51,7 @@ async def gdrive_mediainfo(message, url, isRaw):
         mediainfo_json = json.loads(mediainfo_json)
 
         filesize = get_readable_bytes(float(metadata["size"]))
+        readable_size = get_readable_bytes(size)
         filename = metadata["name"]
 
         lines = mediainfo.splitlines()
