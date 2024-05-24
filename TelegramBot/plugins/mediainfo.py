@@ -23,6 +23,7 @@ from TelegramBot.helpers.filters import check_auth
 from TelegramBot.helpers.mediainfo_paste import mediainfo_paste
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
+start_time = time.time()
 
 async def gdrive_mediainfo(message, url, isRaw):
     """
@@ -247,7 +248,6 @@ async def telegram_mediainfo(client, message, isRaw):
         mediainfo_json = json.loads(mediainfo_json)
 
         readable_size = get_readable_bytes(size)
-        readable_time = get_readable_time(time)
         
         lines = mediainfo.splitlines()
         for i in range(len(lines)):
@@ -287,8 +287,9 @@ async def telegram_mediainfo(client, message, isRaw):
         button = InlineKeyboardMarkup([
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
+        process_time = start_time
         
-        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size} \n**Time :** {readable_time}"
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size} \n**Time :** {readable_time(process_time)}"
         
         await reply_msg.edit(
             text=msg,
