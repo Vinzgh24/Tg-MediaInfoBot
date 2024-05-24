@@ -91,7 +91,6 @@ async def gdrive_mediainfo(message, url, isRaw):
         button = InlineKeyboardMarkup([
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
-        process_time = start_time
         
         msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** <code>{readable_size}</code>"
         
@@ -182,7 +181,6 @@ async def ddl_mediainfo(message, url, isRaw):
         button = InlineKeyboardMarkup([
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
-        process_time = start_time
         
         msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** <code>{readable_size}</code>"
         
