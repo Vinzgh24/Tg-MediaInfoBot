@@ -275,11 +275,13 @@ async def telegram_mediainfo(client, message, isRaw):
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
         
+        msg = f"<blockquote><code>{filename}</code></blockquote>"
+        
         await reply_msg.edit(
-            f"**File Name :** `{filename}`\n\n**Mediainfo :** {output}", 
-             reply_markup=button, 
-             disable_web_page_preview=False)
-
+            text=msg,
+            reply_markup=button,
+            disable_web_page_preview=False
+        )
         os.remove(f"{download_path}.txt")
         os.remove(download_path)
 
