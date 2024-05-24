@@ -75,8 +75,9 @@ async def gdrive_mediainfo(message, url, isRaw):
         remove_N(lines)
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
-
-        if isRaw:
+            
+        try:
+           if isRaw:
             await message.reply_document(
                 f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
             os.remove(f"{download_path}.txt")
