@@ -267,10 +267,11 @@ async def telegram_mediainfo(client, message, isRaw):
         remove_N(lines)
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
-
+            
         if isRaw:
         with open(f"{download_path}.txt", "r+") as file:
             content = file.read()
+            
         url = mediainfo_paste(text=content, title=filename)
         await reply_msg.edit(f"**File Name :** `{filename}`", disable_web_page_preview=False)
         
