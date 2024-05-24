@@ -21,7 +21,11 @@ from TelegramBot.helpers.filters import check_auth
 from TelegramBot.helpers.mediainfo_paste import mediainfo_paste
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
-
+async def generate_keyboard(mediainfo_url):
+    return InlineKeyboardMarkup([
+         InlineKeyboardButton("🔗 Mediainfo", url=output)]
+    ])
+    
 async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_msg):
     """
     Generates Mediainfo from a Google Drive file.
@@ -194,7 +198,7 @@ async def ddl_mediainfo(message, url, isRaw):
             "Something went wrong while generating Mediainfo from the given url.")
 
 
-async def telegram_mediainfo(client, message, isRaw):
+async def telegram_mediainfo(client, message, url, isRaw, download_path, filename, reply_msg):
     """
     Generates Mediainfo from a Telegram File.
     """
@@ -273,12 +277,11 @@ async def telegram_mediainfo(client, message, isRaw):
                 content = file.read()
         
             output = mediainfo_paste(text=content, title=filename)
-            button = InlineKeyboardMarkup([
-                [InlineKeyboardButton("View Mediainfo", url=output)]
-            ])
-            await message.edit(
-                f"**File Name :** `{filename}`\n\n**Mediainfo :** [here]({output})",
-                reply_markup=button, disable_web_page_preview=False
+            keyboard_layout = generate_keyboard(output)
+            await reply_msg.edit(
+                f"**File Name :** `{filename}`\n\n**Mediainfo :** [View Mediainfo]({output})",
+                disable_web_page_preview=False,
+                reply_markup=keyboard_layout
             )
         else:
             await client.send_document(
