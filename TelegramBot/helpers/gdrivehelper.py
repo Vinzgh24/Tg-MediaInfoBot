@@ -19,15 +19,16 @@ class GoogleDriveHelper:
 
     @staticmethod
     def is_gdrive_link(gdrive_url: str) -> bool:
-    """
-    Check if the given link is valid Google Drive link or not.
-    """
-    # Using a raw string here
-    pattern = r"https?://(drive\.google\.com/)\S+"
-    if re.search(pattern, gdrive_url):
-        return True
-    else:
-        return False
+        """
+        Check if the given link is valid Google Drive link or not.
+        """
+
+        pattern = "https?://(drive\.google\.com\/)\S+"
+        if re.search(pattern, gdrive_url):
+            return True
+        else:
+            return False
+
     @staticmethod
     def is_gdrive_folder(gdrive_url: str) -> bool:
         """
@@ -106,6 +107,6 @@ class GoogleDriveHelper:
 
     def get_ddl_link(self, gdrive_link):
         file_id = self.get_id(gdrive_link)
-        ddl_link = fr"https://www.googleapis.com/drive/v3/files/{file_id}\?supportsAllDrives\=true\&alt\=media"
+        ddl_link = f"https://www.googleapis.com/drive/v3/files/{file_id}\?supportsAllDrives\=true\&alt\=media"
         # "https://www.googleapis.com/drive/v3/files/{file_id}?supportsAllDrives\=true&alt=media"
         return ddl_link
