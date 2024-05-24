@@ -279,6 +279,7 @@ async def telegram_mediainfo(client, message, isRaw):
                 return
                 with open(f"{download_path}.txt", "r+") as file:
                     content =.read()
+                    
                     output = mediainfo_paste(text=content, title=filename)
                     button = InlineKeyboardMarkup([
                         [InlineKeyboardButton("View Mediainfo", url=output)]
