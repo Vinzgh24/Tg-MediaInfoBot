@@ -122,6 +122,7 @@ async def ddl_mediainfo(message, url, isRaw):
 
         rand_str = randstr()
         download_path = f"download/{rand_str}_{filename}"
+        os.makedirs(os.path.dirname(download_path), exist_ok=True)
         
         #initiating Httpx client 
         client = httpx.AsyncClient()  
