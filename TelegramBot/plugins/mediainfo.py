@@ -108,6 +108,13 @@ async def gdrive_mediainfo(message, url, isRaw):
         return await reply_msg.edit(
             "Something went wrong while processing Gdrive link.\n\n (Make sure that the gdrive link is not rate limited, is public link and not a folder)")
 
+import os
+import re
+import httpx
+from random import choices
+from string import ascii_lowercase
+
+
 async def ddl_mediainfo(message, url, isRaw):
     """
     Generates Mediainfo from a Direct Download Link.
@@ -120,15 +127,20 @@ async def ddl_mediainfo(message, url, isRaw):
         if len(filename) > 60:
             filename = filename[-60:]
 
+        if not filename:  # ensuring filename is valid
+            raise ValueError("URL does not contain a valid filename.")
+        
         rand_str = randstr()
         download_path = f"download/{rand_str}_{filename}"
         os.makedirs(os.path.dirname(download_path), exist_ok=True)
         
-        #initiating Httpx client 
-        client = httpx.AsyncClient()  
-        headers = {"user-agent":"Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
-        
-        # Trigger TimeoutError after 15 seconds if download is slow / unsuccessful 
+        # Initializing Httpx client
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            headers = {
+                "user-agent": "Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"
+            }
+            response = await client.get(url, headers=headers)
+            
         async with timeout(15):
             async with client.stream("GET", url, headers=headers) as response:
             	# Download 10mb Chunk
