@@ -22,7 +22,7 @@ from TelegramBot.helpers.mediainfo_paste import mediainfo_paste
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
 
-async def gdrive_mediainfo(message, url, isRaw):
+async def gdrive_mediainfo(message, url, isRaw, download_path, filename, reply_msg):
     """
     Generates Mediainfo from a Google Drive file.
     """
@@ -75,34 +75,37 @@ async def gdrive_mediainfo(message, url, isRaw):
         remove_N(lines)
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
-            
-        try:
-           if isRaw:
+
+    try:
+        if isRaw:
             await message.reply_document(
                 f"{download_path}.txt", caption=f"**File Name :** `{filename}`")
             os.remove(f"{download_path}.txt")
-            os.remove(f"{download_path}")
+            os.remove(download_path)  # Assuming download_path is a directory
             return await reply_msg.delete()
 
+        # Reading content from file when not isRaw
         with open(f"{download_path}.txt", "r+") as file:
-          content = file.read()
+            content = file.read()
 
-    output = mediainfo_paste(text=content, title=filename)
-    keyboard = InlineKeyboardMarkup([
-    [InlineKeyboardButton("View Mediainfo", url=output)]])
-    await reply_msg.edit(
-    text=f"**File Name :** `{unquote(filename)}`\n\n**Mediainfo :**",
-    reply_markup=keyboard,
-    disable_web_page_preview=True
-)
+        output = mediainfo_paste(text=content, title=filename)
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("View Mediainfo", url=output)]
+        ])
+        await reply_msg.edit(
+            text=f"**File Name :** `{unquote(filename)}`\n\n**Mediainfo :**",
+            reply_markup=keyboard,
+            disable_web_page_preview=True
+        )
         os.remove(f"{download_path}.txt")
-        os.remove(f"{download_path}")
+        os.remove(download_path)
 
     except Exception as error:
-        LOGGER(__name__).error(error)        
-        return await reply_msg.edit(
-            "Something went wrong while processing Gdrive link.\n\n (Make sure that the gdrive link is not rate limited, is public link and not a folder)")
-
+        LOGGER(__name__).error(str(error))  # Make sure to convert error to string if LOGGER does not handle Exceptions directly
+        await reply_msg.edit(
+            "Something went wrong while processing the GDrive link.\n\n" +
+            "Make sure that the GDrive link is not rate limited, is a public link, and not pointing to a folder."
+        )
 
 async def ddl_mediainfo(message, url, isRaw):
     """
