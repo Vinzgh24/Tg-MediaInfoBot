@@ -268,39 +268,31 @@ async def telegram_mediainfo(client, message, url, isRaw, download_path, filenam
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
 
-    if isRaw:
-        await client.send_document(
-            chat_id=message.chat.id,
-            document=f"{download_path}.txt",
-            caption=f"**File Name :** `{filename}`"
-        )
-        os.remove(f"{download_path}.txt")
-        os.remove(f"{download_path}")
-        return
-
-    with open(f"{download_path}.txt", "r+") as file:
-        content =.read()
-
-    output = mediainfo_paste(text=content, title=filename)
-    button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("View Mediainfo", url=output)]
-    ])
-    await message.edit(
-        f"**File Name :** `{filename}`\n\n**Mediainfo :** [here]({output})",
-        reply_markup=button,  # Adding the inline button
-        disable_web_page_preview=False
-    )
-
+        if not isRaw:
+            with open(f"{download_path}.txt", "r+") as file:
+                content = file.read()
+        
+            output = mediainfo_paste(text=content, title=filename)
+            button = InlineKeyboardMarkup([
+                [InlineKeyboardButton("View Mediainfo", url=output)]
+            ])
+            await message.edit(
+                f"**File Name :** `{filename}`\n\n**Mediainfo :** [here]({output})",
+                reply_markup=button, disable_web_page_preview=False
+            )
+        else:
+            await client.send_document(
+                chat_id=message.chat.id,
+                document=f"{download_path}.txt",
+                caption=f"**File Name :** `{filename}`"
+            )
+            os.remove(f"{download_path}.txt")
+            os.remove(f"{download_path}")
+            return
+        
     except Exception as e:
-        await reply_msg.edit_text(f"Failed to generate Mediainfo due to: {str(e)}")
-
-        os.remove(f"{download_path}.txt")
-        os.remove(download_path)
-
-    except Exception as error:
-        LOGGER(__name__).error(error)
-        return await reply_msg.edit(
-            "Something went wrong while generating Mediainfo from replied Telegram file.")
+        await message.reply_text(f"An error occurred: {str(e)}")
+        # Ideally, you should handle specific exceptions and provide user-friendly responses
 
 
 @Client.on_message(filters.command(["mediainfo", "m"]) & check_auth)
