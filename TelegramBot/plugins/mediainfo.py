@@ -267,29 +267,24 @@ async def telegram_mediainfo(client, message, isRaw):
         remove_N(lines)
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
-
-    if isRaw:
-    with open(f"{download_path}.txt", "r+") as file:
-        content = file.read()
-        
-    url = mediainfo_paste(text=content, title=filename)
-    await reply_msg.edit(f"**File Name :** `{filename}`", disable_web_page_preview=False)
-    
-    buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("View Mediainfo", url=url)]
-    ])
-    
-    await message.reply_text("Here is your media info link:", reply_markup=buttons)
-else:
-    await client.send_document(
-        chat_id=message.chat.id,
-        document=f"{download_path}.txt",
-        caption=f"**File Name :** `{filename}`"
-    )
-
-# Cleanup
-os.remove(f"{download_path}.txt")
-os.remove(download_path)
+            
+            if isRaw:
+                with open(f"{download_path}.txt", "r+") as file:
+                    content = file.read()
+                    url = mediainfo_paste(text=content, title=filename)
+                    await reply_msg.edit(f"**File Name :** `{filename}`", disable_web_page_preview=False)
+                    buttons = InlineKeyboardMarkup([
+                        [InlineKeyboardButton("View Mediainfo", url=url)]
+                    ])
+                    await message.reply_text("Here is your media info link:", reply_markup=buttons)
+            else:
+                await client.send_document(
+                    chat_id=message.chat.id,
+                    document=f"{download_path}.txt",
+                    caption=f"**File Name :** `{filename}`"
+                )
+                os.remove(f"{download_path}.txt")
+                os.remove(download_path)
     except Exception as e:
         await message.reply_text(f"An error occurred: {str(e)}")
 
