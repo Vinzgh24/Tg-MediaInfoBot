@@ -276,14 +276,13 @@ async def telegram_mediainfo(client, message, isRaw):
         if isRaw:
             with open(f"{download_path}.txt", "r+") as file:
                 content = file.read()
-        
-            output = mediainfo_paste(text=content, title=filename)
-            keyboard_layout = generate_keyboard(output)
-            await reply_msg.edit(
-                f"**File Name :** `{filename}`\n\n**Mediainfo :** [View Mediainfo]({output})",
-                disable_web_page_preview=False,
-                reply_markup=keyboard_layout
-            )
+
+    url = mediainfo_paste(text=content, title=filename)
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("View Media Info", url=url)]
+    ])
+    await message.reply_text(f"Here is your media info link:", reply_markup=buttons)
+      
         else:
             await client.send_document(
                 chat_id=message.chat.id,
