@@ -108,8 +108,6 @@ async def gdrive_mediainfo(message, url, isRaw):
         return await reply_msg.edit(
             "Something went wrong while processing Gdrive link.\n\n (Make sure that the gdrive link is not rate limited, is public link and not a folder)")
 
-
-
 async def ddl_mediainfo(message, url, isRaw):
     """
     Generates Mediainfo from a Direct Download Link.
@@ -117,53 +115,47 @@ async def ddl_mediainfo(message, url, isRaw):
 
     reply_msg = await message.reply_text(
         "Generating Mediainfo, Please wait...", quote=True)
-    
     try:
-        filename = re.search(r".+/(.+)", url).group(1)
+        filename = re.search(".+/(.+)", url).group(1)
         if len(filename) > 60:
             filename = filename[-60:]
 
         rand_str = randstr()
         download_path = f"download/{rand_str}_{filename}"
-
-        # Create the download directory if it does not exist
-        os.makedirs(os.path.dirname(download_path), exist_ok=True)
-
-        # Initiating Httpx client
-        client = httpx.AsyncClient()
-        headers = {
-            "user-agent": "Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"
-        }
-
-        # Trigger TimeoutError after 15 seconds if download is slow / unsuccessful
+        
+        #initiating Httpx client 
+        client = httpx.AsyncClient()  
+        headers = {"user-agent":"Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
+        
+        # Trigger TimeoutError after 15 seconds if download is slow / unsuccessful 
         async with timeout(15):
             async with client.stream("GET", url, headers=headers) as response:
-                # Ensure status_code is 200 and content type implies file download
-                if response.status_code == 200:
-                    with open(download_path, "ab") as file:
-                        async for chunk in response.aiter_bytes(10000000):
-                            file.write(chunk)
-                            break
-                            
-                            mediainfo = await async_subprocess(f"mediainfo {download_path}")
-                            mediainfo_json = await async_subprocess(
-                                f"mediainfo {download_path} --Output=JSON")
-                            mediainfo_json = json.loads(mediainfo_json)
-                            readable_size = get_readable_bytes(size)
-                            
-                            filesize = requests.head(url).headers.get("content-length")
-                            lines = mediainfo.splitlines()
-                            for i in range(len(lines)):
-                                if "Complete name" in lines[i]:
-                                    lines[i] = re.sub(r": .+", ": " + unquote(filename), lines[i]
-                                                      elif "File size" in lines[i]:
-                                                      lines[i] = re.sub(
-                                        r": .+", ": " + get_readable_bytes(float(filesize)), lines[i])
-                                elif (
-                                    "Overall bit rate" in lines[i]
-                                    and "Overall bit rate mode" not in lines[i]
-                                ):
-                                    
+            	# Download 10mb Chunk
+            	async for chunk in response.aiter_bytes(10000000):
+            	    with open(download_path, "wb") as file:
+            	    	file.write(chunk)
+            	    	break
+          
+
+        mediainfo = await async_subprocess(f"mediainfo {download_path}")
+        mediainfo_json = await async_subprocess(
+            f"mediainfo {download_path} --Output=JSON")
+        mediainfo_json = json.loads(mediainfo_json)
+
+        filesize = requests.head(url).headers.get("content-length")
+        lines = mediainfo.splitlines()
+        for i in range(len(lines)):
+            if "Complete name" in lines[i]:
+                lines[i] = re.sub(r": .+", ": " + unquote(filename), lines[i])
+
+            elif "File size" in lines[i]:
+                lines[i] = re.sub(
+                    r": .+", ": " + get_readable_bytes(float(filesize)), lines[i])
+
+            elif (
+                "Overall bit rate" in lines[i]
+                and "Overall bit rate mode" not in lines[i]
+            ):
                 duration = float(mediainfo_json["media"]["track"][0]["Duration"])
                 bitrate = get_readable_bitrate(float(filesize) * 8 / (duration * 1000))
                 lines[i] = re.sub(r": .+", ": " + bitrate, lines[i])
@@ -185,19 +177,12 @@ async def ddl_mediainfo(message, url, isRaw):
             content = file.read()
 
         output = mediainfo_paste(text=content, title=filename)
-        button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("View Mediainfo", url=output)]
-    ])
-        
-        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** <code>{readable_size}</code>"
-        
         await reply_msg.edit(
-            text=msg,
-            reply_markup=button,
-            disable_web_page_preview=False
-        )
+            f"**File Name :** `{unquote(filename)}`\n\n**Mediainfo :** {output}",
+            disable_web_page_preview=False)
+
         os.remove(f"{download_path}.txt")
-        os.remove(download_path)
+        os.remove(f"{download_path}")
 
     except asyncio.TimeoutError:
         return await reply_msg.edit(
