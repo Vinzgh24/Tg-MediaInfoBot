@@ -291,6 +291,9 @@ async def telegram_mediainfo(client, message, isRaw):
         disable_web_page_preview=False
     )
 
+    except Exception as e:
+        await reply_msg.edit_text(f"Failed to generate Mediainfo due to: {str(e)}")
+
         os.remove(f"{download_path}.txt")
         os.remove(download_path)
 
