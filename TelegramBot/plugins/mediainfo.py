@@ -23,8 +23,6 @@ from TelegramBot.helpers.filters import check_auth
 from TelegramBot.helpers.mediainfo_paste import mediainfo_paste
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
-start_time = time.time()
-
 async def gdrive_mediainfo(message, url, isRaw):
     """
     Generates Mediainfo from a Google Drive file.
@@ -90,12 +88,20 @@ async def gdrive_mediainfo(message, url, isRaw):
             content = file.read()
 
         output = mediainfo_paste(text=content, title=filename)
+        button = InlineKeyboardMarkup([
+        [InlineKeyboardButton("View Mediainfo", url=output)]
+    ])
+        process_time = start_time
+        
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** <code>{readable_size}</code>"
+        
         await reply_msg.edit(
-            f"**File Name :** `{filename}`\n\n**Mediainfo :** {output}",
-            disable_web_page_preview=False)
-
+            text=msg,
+            reply_markup=button,
+            disable_web_page_preview=False
+        )
         os.remove(f"{download_path}.txt")
-        os.remove(f"{download_path}")
+        os.remove(download_path)
 
     except Exception as error:
         LOGGER(__name__).error(error)        
@@ -176,17 +182,17 @@ async def ddl_mediainfo(message, url, isRaw):
         button = InlineKeyboardMarkup([
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
+        process_time = start_time
         
-        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size}"
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** <code>{readable_size}</code>"
         
         await reply_msg.edit(
             text=msg,
             reply_markup=button,
             disable_web_page_preview=False
         )
-        
         os.remove(f"{download_path}.txt")
-        os.remove(f"{download_path}")
+        os.remove(download_path)
 
     except asyncio.TimeoutError:
         return await reply_msg.edit(
@@ -289,7 +295,7 @@ async def telegram_mediainfo(client, message, isRaw):
     ])
         process_time = start_time
         
-        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** {readable_size} \n**Time :** {process_time}"
+        msg = f"<blockquote><code>{filename}</code></blockquote> \n**Size :** <code>{readable_size}</code>"
         
         await reply_msg.edit(
             text=msg,
