@@ -20,50 +20,37 @@ from TelegramBot.logging import LOGGER
 from TelegramBot.helpers.filters import check_auth
 from TelegramBot.helpers.gdrivehelper import GoogleDriveHelper
 
-
-async def slowpics_collection(message, file_name, path):
+async def slowpics_collection(message: Message, file_name: str, path: str):
     """
-    Uploads image(s) to https://slow.pics/ from a specified directory.
+    Uploads image(s) to https://ibb.co/ from a specified directory.
     """
 
+    API_KEY = "a59ec6d6966e55aefbcad1b2a70f9757"
     msg = await message.reply_text(
-        "uploading generated screenshots to slow.pics.", quote=True)
+        "Uploading generated screenshots to ibb.co...", quote=True)
 
     img_list = os.listdir(path)
     img_list = sorted(img_list)
 
-    data = {
-        "collectionName": f"{unquote(file_name)}",
-        "hentai": "false",
-        "optimizeImages": "false",
-        "public": "false"}
-
-    for i in range(0, len(img_list)):
-        data[f"images[{i}].name"] = img_list[i].split(".")[0]
-        data[f"images[{i}].file"] = (
-            img_list[i],
-            open(f"{path}/{img_list[i]}", "rb"),
-            "image/png")
-
-    with requests.Session() as client:
-        client.get("https://slow.pics/api/collection")
-        files = MultipartEncoder(data)
-        length = str(files.len)
-
-        headers = {
-            "Content-Length": length,
-            "Content-Type": files.content_type,
-            "Origin": "https://slow.pics/",
-            "Referer": "https://slow.pics/collection",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36",
-            "X-XSRF-TOKEN": client.cookies.get_dict()["XSRF-TOKEN"]}
-
-        response = client.post(
-            "https://slow.pics/api/collection", data=files, headers=headers)
-        await msg.edit(
-            f"File Name: `{unquote(file_name)}`\n\nFrames: https://slow.pics/c/{response.text}",
-            disable_web_page_preview=True)
-
+    for img_file in img_list:
+        img_path = os.path.join(path, img_file)
+        
+        with open(img_path, "rb") as img:
+            files = {
+                'key': (None, API_KEY),
+                'image': (img_file, img, 'image/png')
+            }
+            
+            response = requests.post("https://api.imgbb.com/1/upload", files=files)
+            upload_result = response.json()
+            
+            if response.status_code == 200 and upload_result['success']:
+                image_url = upload_result['data']['url']
+                await msg.reply_text(f"Uploaded Image: {image_url}", quote=True)
+            else:
+                await msg.reply_text(f"Failed to upload {img_file}: {upload_result['error']['message']}", quote=True)
+                
+    await msg.edit("All images uploaded to ibb.co.")
 
 async def generate_ss_from_file(
     message, replymsg, file_name, frame_count, file_duration
