@@ -23,7 +23,7 @@ ABOUT_CAPTION = f"""• Python version : {__python_version__}
 • Bot version : {__version__}
 • pyrogram  version : {__pyro_version__}
 
-**Github Repo**: https://github.com/sanjit-sinha/Tg-MediaInfoBot"""
+**Owner**: https://t.me/nonplayablcharacter"""
 
 START_ANIMATION = "https://telegra.ph/file/c0857672b427bec8542f6.mp4"
 
