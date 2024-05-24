@@ -107,7 +107,17 @@ async def gdrive_mediainfo(message, url, isRaw):
         LOGGER(__name__).error(error)        
         return await reply_msg.edit(
             "Something went wrong while processing Gdrive link.\n\n (Make sure that the gdrive link is not rate limited, is public link and not a folder)")
-
+        
+async def async_subprocess(shell_command):
+    process = await asyncio.create_subprocess_shell(
+        shell_command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    stdout, stderr = await process.communicate()
+    if process.returncode != 0:
+        raise Exception(f"Command failed: {stderr.decode()}")
+    return stdout.decode()
 
 async def ddl_mediainfo(message, url, isRaw):
     """
@@ -116,50 +126,26 @@ async def ddl_mediainfo(message, url, isRaw):
 
     reply_msg = await message.reply_text(
         "Generating Mediainfo, Please wait...", quote=True)
-
     try:
-        # Extract filename from URL
-        match = re.search(r".+/(.+)", url)
-        if not match:
-            await reply_msg.edit_text("Invalid URL")
-            return
-
-        filename = match.group(1)
-
-        # Limit the filename to the last 60 characters if it's too long
+        filename = re.search(".+/(.+)", url).group(1)
         if len(filename) > 60:
             filename = filename[-60:]
 
-        # Ensure filename doesn't become an empty string
-        if not filename.strip():
-            filename = 'downloaded_file'
-
         rand_str = randstr()
         download_path = f"download/{rand_str}_{filename}"
-
-        # Ensure the directory where the file will be saved exists
+        
+        # Create the download directory if it doesn't exist
         os.makedirs(os.path.dirname(download_path), exist_ok=True)
-
-        # Initiating Httpx client 
-        async with httpx.AsyncClient() as client:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"
-            }     
-            response = await client.get(url, headers=headers)
-            
-        async with timeout(15):
-            async with client.stream("GET", url, headers=headers) as response:
-            	# Download 10mb Chunk
-            	async for chunk in response.aiter_bytes(10000000):
-            	    with open(download_path, "wb") as file:
-            	    	file.write(chunk)
-            	    	break     
-
+        
+        # Use aria2c to download the file
+        aria2c_command = f"aria2c --dir=\"{os.path.dirname(download_path)}\" --out=\"{os.path.basename(download_path)}\" \"{url}\""
+        await async_subprocess(aria2c_command)
+          
         mediainfo = await async_subprocess(f"mediainfo {download_path}")
         mediainfo_json = await async_subprocess(
             f"mediainfo {download_path} --Output=JSON")
         mediainfo_json = json.loads(mediainfo_json)
-
+        
         filesize = requests.head(url).headers.get("content-length")
         lines = mediainfo.splitlines()
         for i in range(len(lines)):
