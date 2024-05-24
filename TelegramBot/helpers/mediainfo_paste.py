@@ -244,25 +244,20 @@ def html_builder(title: str, text: str) -> str:
     html_msg += "</span>"
     return css + html_msg
 
-
 async def mediainfo_paste(text: str, title: str) -> str:
-    """
-    paste the text in katb.in website.
-    """
-
-    katbin_url = "https://katb.in"
     html_content = html_builder(title, text)
+    URL = "https://katb.in"
+    response = await client.get(URL)
     client = AsyncClient()
-    response = await client.get(katbin_url)
     soup = BeautifulSoup(response.content, "html_parser")
     csrf_token = soup.find("input", {"name": "_csrf_token"}).get("value")
     try:
         paste_post = await client.post(
-            katbin_url,
+            URL,
             data={"_csrf_token": csrf_token, "paste[content]": text},
             follow_redirects=False,
         )
-        output_url = f"{katbin_url}{paste_post.headers['location']}"
+        output_url = f"{URL}{paste_post.headers['location']}"
         await client.aclose()
         return output_url
     except:
