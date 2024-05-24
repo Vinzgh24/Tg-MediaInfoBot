@@ -5,6 +5,7 @@ import httpx
 import asyncio
 import requests
 import subprocess
+from html import escape
 from async_timeout import timeout 
 from urllib.parse import unquote
 
