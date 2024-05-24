@@ -273,7 +273,7 @@ async def telegram_mediainfo(client, message, isRaw):
         with open(f"{download_path}.txt", "w") as f:
             f.write("\n".join(lines))
 
-        if not isRaw:
+        if isRaw:
             with open(f"{download_path}.txt", "r+") as file:
                 content = file.read()
         
