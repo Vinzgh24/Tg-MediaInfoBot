@@ -86,11 +86,9 @@ async def gdrive_mediainfo(message, url, isRaw):
         with open(f"{download_path}.txt", "r+") as file:
           content = file.read()
 
-  mediainfo_url = mediainfo_paste(text=content, title=filename)
-      # Creating a keyboard button with the mediainfo URL
+    output = mediainfo_paste(text=content, title=filename)
     keyboard = InlineKeyboardMarkup([
-    [InlineKeyboardButton("View Mediainfo", url=mediainfo_url)]])
-
+    [InlineKeyboardButton("View Mediainfo", url=output)]])
     await reply_msg.edit(
     text=f"**File Name :** `{unquote(filename)}`\n\n**Mediainfo :**",
     reply_markup=keyboard,
