@@ -129,7 +129,7 @@ async def ddl_mediainfo(message, url, isRaw):
         download_path = os.path.join(download_dir, f"{rand_str}_{filename}")
         
         # Initiating Httpx client
-        async with httpx.AsyncClient() as client:
+        client = httpx.AsyncClient() 
             headers = {"user-agent": "Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
             
         # Trigger TimeoutError after 15 seconds if download is slow / unsuccessful 
