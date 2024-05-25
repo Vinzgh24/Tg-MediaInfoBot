@@ -140,9 +140,18 @@ async def ddl_mediainfo(message, url, isRaw):
         
         os.makedirs(os.path.dirname(download_path), exist_ok=True)
         
-        # Use aria2c to download the file
-        aria2c_command = f"aria2c --dir=\"{os.path.dirname(download_path)}\" --out=\"{os.path.basename(download_path)}\" \"{url}\""
-        await async_subprocess(aria2c_command)
+        #initiating Httpx client 
+        client = httpx.AsyncClient()  
+        headers = {"user-agent":"Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
+        
+        # Trigger TimeoutError after 15 seconds if download is slow / unsuccessful 
+        async with timeout(15):
+            async with client.stream("GET", url, headers=headers) as response:
+            	# Download 10mb Chunk
+            	async for chunk in response.aiter_bytes(10000000):
+            	    with open(download_path, "wb") as file:
+            	    	file.write(chunk)
+            	    	break
           
         mediainfo = await async_subprocess(f"mediainfo {download_path}")
         mediainfo_json = await async_subprocess(
