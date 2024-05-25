@@ -88,7 +88,7 @@ async def gdrive_mediainfo(message, url, isRaw):
         with open(f"{download_path}.txt", "r+") as file:
             content = file.read()
 
-        output = mediainfo_paste(text=content, title=filename)
+        output = await mediainfo_paste(text=content, title=filename)
         button = InlineKeyboardMarkup([
         [InlineKeyboardButton("View Mediainfo", url=output)]
     ])
@@ -147,6 +147,11 @@ async def ddl_mediainfo(message, url, isRaw):
         mediainfo_json = json.loads(mediainfo_json)
         
         filesize = requests.head(url).headers.get("content-length")
+        if filesize is not None:
+            filesize = float(filesize)  # Ensure filesize is a float
+        else:
+            filesize = 0  # Assign a default value or handle this case appropriately
+        
         lines = mediainfo.splitlines()
         for i in range(len(lines)):
             if "Complete name" in lines[i]:
@@ -180,7 +185,7 @@ async def ddl_mediainfo(message, url, isRaw):
         with open(f"{download_path}.txt", "r+") as file:
             content = file.read()
 
-        output = mediainfo_paste(text=content, title=filename)
+        output = await mediainfo_paste(text=content, title=filename)
         await reply_msg.edit(
             f"**File Name :** `{unquote(filename)}`\n\n**Mediainfo :** {output}",
             disable_web_page_preview=False)
@@ -196,8 +201,7 @@ async def ddl_mediainfo(message, url, isRaw):
         LOGGER(__name__).error(error)
         return await reply_msg.edit(
             "Something went wrong while generating Mediainfo from the given url.")
-
-
+        
 async def telegram_mediainfo(client, message, isRaw):
     """
     Generates Mediainfo from a Telegram File.
