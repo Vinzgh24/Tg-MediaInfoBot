@@ -242,8 +242,9 @@ def html_builder(title: str, text: str) -> str:
 
 async def katbin_paste(text: str) -> str:
     """
-    Paste the text in katb.in website.
+    paste the text in katb.in website.
     """
+
     katbin_url = "https://katb.in"
     client = AsyncClient()
     response = await client.get(katbin_url)
@@ -258,11 +259,10 @@ async def katbin_paste(text: str) -> str:
         output_url = f"{katbin_url}{paste_post.headers['location']}"
         await client.aclose()
         return output_url
-    except Exception as e:
-        await client.aclose()
-        return f"something went wrong while pasting text in katb.in. Error: {str(e)}"
-      
+    except:
+        return "Something went wrong while pasting text in katb.in."
+
+
 async def mediainfo_paste(text: str, title: str) -> str:
     html_content = html_builder(title, text)
-    url = await katbin_paste(html_content)
-    return url
+    return await katbin_paste(html_content)
