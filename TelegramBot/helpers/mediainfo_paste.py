@@ -264,4 +264,4 @@ async def katbin_paste(text: str) -> str:
 
 
 async def mediainfo_paste(text: str, title: str) -> str:
-    return await katbin_paste(output_url)
+    return await katbin_paste(text)
