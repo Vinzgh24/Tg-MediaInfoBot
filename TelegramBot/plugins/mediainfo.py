@@ -118,8 +118,7 @@ async def async_subprocess(shell_command):
     if process.returncode != 0:
         raise Exception(f"Command failed: {stderr.decode()}")
     return stdout.decode()
-
-
+        
 async def ddl_mediainfo(message, url, isRaw):
     """
     Generates Mediainfo from a Direct Download Link.
@@ -128,22 +127,26 @@ async def ddl_mediainfo(message, url, isRaw):
     reply_msg = await message.reply_text(
         "Generating Mediainfo, Please wait...", quote=True)
     try:
-        # Extract filename from URL
-        filename = url.split("/")[-1]
-        filename = filename.split("?")[0]  # Remove query parameters if any
-
+        reply_msg = await message.reply_text(
+            "Generating Mediainfo, Please wait...", quote=True)
+        
+        # Extract filename safely
+        filename = re.search(r".+/([^/]+$)", url).group(1)
         if len(filename) > 60:
             filename = filename[-60:]
 
         rand_str = randstr()
-        download_path = os.path.join("download", f"{rand_str}_{filename}")
         
-        os.makedirs(os.path.dirname(download_path), exist_ok=True)
+        download_dir = "download"
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir)
         
-        #initiating Httpx client 
-        client = httpx.AsyncClient()  
-        headers = {"user-agent":"Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
+        download_path = os.path.join(download_dir, f"{rand_str}_{filename}")
         
+        # Initiating Httpx client 
+        client = httpx.AsyncClient()
+        headers = {"user-agent": "Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
+
         # Trigger TimeoutError after 15 seconds if download is slow / unsuccessful 
         async with timeout(15):
             async with client.stream("GET", url, headers=headers) as response:
