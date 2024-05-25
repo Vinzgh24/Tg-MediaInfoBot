@@ -119,6 +119,7 @@ async def async_subprocess(shell_command):
         raise Exception(f"Command failed: {stderr.decode()}")
     return stdout.decode()
 
+
 async def ddl_mediainfo(message, url, isRaw):
     """
     Generates Mediainfo from a Direct Download Link.
@@ -127,14 +128,16 @@ async def ddl_mediainfo(message, url, isRaw):
     reply_msg = await message.reply_text(
         "Generating Mediainfo, Please wait...", quote=True)
     try:
-        filename = re.search(".+/(.+)", url).group(1)
+        # Extract filename from URL
+        filename = url.split("/")[-1]
+        filename = filename.split("?")[0]  # Remove query parameters if any
+
         if len(filename) > 60:
             filename = filename[-60:]
 
         rand_str = randstr()
-        download_path = f"download/{rand_str}_{filename}"
+        download_path = os.path.join("download", f"{rand_str}_{filename}")
         
-        # Create the download directory if it doesn't exist
         os.makedirs(os.path.dirname(download_path), exist_ok=True)
         
         # Use aria2c to download the file
