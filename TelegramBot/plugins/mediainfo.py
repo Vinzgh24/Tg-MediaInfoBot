@@ -125,6 +125,68 @@ def sanitize_filename(filename):
     """
     return re.sub(r'[^a-zA-Z0-9_\-\.]', '_', filename)
 
+import re
+import os
+import json
+import httpx
+import requests
+from asyncio import timeout
+from pyrogram import Client
+
+async def ddl_mediainfo(message, url, isRaw):
+    """
+    Generates Mediainfo from a Direct Download Link.
+    """
+    reply_msg = await message.reply_text(
+        "Generating Mediainfo, Please wait...", quote=True)
+    
+    try:
+        filename = re.search(".+/(.+)", url).group(1)
+        if len(filename) > 60:
+            filename = filename[-60:]
+
+        rand_str = "random_string_identifier"  # Replace this with your random string generator function if needed
+        download_dir = "download/"
+        
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir)
+
+        download_path = os.path.join(download_dir, f"{rand_str}_{filename}")
+        
+        # Initiating Httpx client
+        async with httpx.AsyncClient() as client:
+            headers = {"user-agent": "Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
+            
+            # Trigger TimeoutError after 15 seconds if download is slow / unsuccessful 
+            async with timeout(15):
+                async with client.stream("GET", url, headers=headers) as response:
+                    # Open file in append binary mode and write chunks
+                    with open(download_path, "ab") as file:
+                        async for chunk in response.aiter_bytes(10000000):  # Download 10MB Chunk
+                            file.write(chunk)
+
+        mediainfo = await async_subprocess(f"mediainfo {download_path}")
+        mediainfo_json = await async_subprocess(
+            f"mediainfo {download_path} --Output=JSON")
+        mediainfo_json = json.loads(mediainfo_json)
+
+        filesize = requests.head(url).headers.get("content-length")
+        lines = mediainfo.splitlines()
+
+        # Additional code to send `mediainfo` as a reply can go here
+        await message.reply_text(mediainfo, quote=True)
+    
+    except Exception as e:
+        await reply_msg.edit_text(f"Error: {e}")
+
+# Additional helper functions may include:
+async def async_subprocess(cmd):
+    # Implement a function to run subprocess asynchronously
+    pass
+
+def randstr():
+    # Implement a random string generator
+    return "random_str"
 
 async def ddl_mediainfo(message, url, isRaw):
     """
@@ -134,41 +196,31 @@ async def ddl_mediainfo(message, url, isRaw):
     reply_msg = await message.reply_text(
         "Generating Mediainfo, Please wait...", quote=True)
     try:
-        reply_msg = await message.reply_text(
-            "Generating Mediainfo, Please wait...", quote=True)
+        filename = re.search(".+/(.+)", url).group(1)
+        if len(filename) > 60:
+            filename = filename[-60:]
+
+        rand_str = "random_string_identifier"  # Replace this with your random string generator function if needed
+        download_dir = "download/"
         
-        rand_str = randstr()
-        
-        # Create download directory if it doesn't exist
-        download_dir = "download"
         if not os.path.exists(download_dir):
             os.makedirs(download_dir)
 
-        # Initiating Httpx client 
-        client = httpx.AsyncClient(follow_redirects=True)  # Enable following redirects
-        headers = {"user-agent": "Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
-
+        download_path = os.path.join(download_dir, f"{rand_str}_{filename}")
+        
+        # Initiating Httpx client
+        async with httpx.AsyncClient() as client:
+            headers = {"user-agent": "Mozilla/5.0 (Linux; Android 12; 2201116PI) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36"}
+            
+        # Trigger TimeoutError after 15 seconds if download is slow / unsuccessful 
         async with timeout(15):
             async with client.stream("GET", url, headers=headers) as response:
-                # Extract filename from the final URL after redirects
-                final_url = str(response.url)
-                parsed_url = urlparse(final_url)
-                filename = os.path.basename(unquote(parsed_url.path))
-                if not filename:
-                    raise ValueError("Filename could not be determined from the URL")
-                
-                # Sanitize filename
-                filename = sanitize_filename(filename)
-                if len(filename) > 60:
-                    filename = filename[-60:]
-                
-                download_path = os.path.join(download_dir, f"{rand_str}_{filename}")
-
-                # Open the file in write binary mode before streaming
-                with open(download_path, "wb") as file:
-                    async for chunk in response.aiter_bytes(10000000):  # Download 10mb Chunk
-                        file.write(chunk)
-          
+            	# Download 10mb Chunk
+            	async for chunk in response.aiter_bytes(10000000):
+            	    with open(download_path, "wb") as file:
+            	    	file.write(chunk)
+            	    	break
+                        
         mediainfo = await async_subprocess(f"mediainfo {download_path}")
         mediainfo_json = await async_subprocess(
             f"mediainfo {download_path} --Output=JSON")
