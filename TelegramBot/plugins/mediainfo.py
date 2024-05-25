@@ -120,7 +120,7 @@ async def ddl_mediainfo(message, url, isRaw):
         if len(filename) > 60:
             filename = filename[-60:]
 
-        rand_str = "random_string_identifier"  # Replace this with your random string generator function if needed
+        rand_str = randstr()
         download_dir = "download/"
         
         if not os.path.exists(download_dir):
